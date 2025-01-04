@@ -1,12 +1,10 @@
 [build]
-  functions = "netlify/functions"  # Folder tempat Netlify Functions disimpan
+  base = "/"                         # Lokasi root proyek, tempat package.json berada
+  publish = "public"                  # Folder untuk file statis hasil build (misalnya index.html, script.js, style.css)
+  command = ""                        # Kosong karena tidak ada build step khusus, bisa diisi jika menggunakan bundler seperti webpack
+  functions = "netlify/functions"     # Folder untuk menyimpan Netlify Functions (misalnya embed.js dan extract.js)
 
-[[redirects]]
-  from = "/embed"
-  to = "/.netlify/functions/embed"
-  status = 200
-
-[[redirects]]
-  from = "/extract"
-  to = "/.netlify/functions/extract"
-  status = 200
+[dev]
+  functions = "netlify/functions"     # Menggunakan folder yang sama untuk fungsi di development
+  publish = "public"                  # Mengarahkan file statis ke folder public di development mode
+  command = "npm run dev"              # Perintah untuk menjalankan server development lokal jika ada
