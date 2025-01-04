@@ -1,0 +1,366 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #fafafa;
+  color: #333;
+  padding: 20px;
+  line-height: 1.5;
+}
+
+/* Navbar */
+nav {
+  display: flex;
+  justify-content: flex-start; /* Navbar rata kiri */
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+  margin-bottom: 10px; /* Jarak dengan konten */
+  padding-top: 0;
+}
+
+nav button {
+  background: none;
+  color: #333;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.2s ease;
+}
+
+nav button:hover,
+nav button.active {
+  color: #007acc;
+  font-weight: bold;
+}
+
+/* Home Page */
+#home {
+  text-align: center;
+  max-width : 100%;
+  margin: 0 auto; /* Pastikan konten tetap rata tengah */
+  padding: 20px;
+}
+
+#about {
+  text-align: left;
+  padding: 50px;
+  padding-top:0;
+  padding-bottom: 0;
+}
+
+.about-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px; /* Jarak antar elemen */
+}
+
+.about-text {
+  flex: 1; /* Agar teks mengambil ruang yang cukup */
+}
+
+.about-text h2 {
+  padding-left: 20px;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.about-text p {
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  width: 500px;
+}
+
+.about-image {
+  flex: 1;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.about-image img {
+  padding-top: 10px;
+  max-width: 40%;
+  height: auto;
+  object-fit: contain; /* Memastikan gambar tidak terpotong */
+  border-radius: 8px; /* Opsional, untuk memberi sedikit kelengkungan pada gambar */
+}
+
+/* Responsif untuk Tablet */
+@media (max-width: 768px) {
+  .about-container {
+    flex-direction: column; /* Menyusun elemen secara vertikal di layar kecil */
+    gap: 10px;
+  }
+
+  .about-text, .about-image {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* Responsif untuk Ponsel */
+@media (max-width: 480px) {
+  .about-text h2 {
+    font-size: 20px;
+  }
+
+  .about-text p {
+    font-size: 14px;
+  }
+}
+
+#features {
+  /* margin: 40px 0; */
+}
+
+.feature-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column; /* Atur tata letak vertikal */
+  align-items: center; /* Ratakan konten ke tengah */
+  text-align: center;
+  max-width: 300px; /* Batasi lebar card */
+  padding: 10px;
+  text-decoration: none; /* Hilangkan garis bawah link */
+  color: inherit; /* Gunakan warna teks bawaan */
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+#features h2 {
+  font-size: 24px; /* Ukuran font untuk judul */
+  font-weight: bold; /* Tebalkan teks */
+  text-align: center; /* Rata tengah */
+  margin-bottom: 20px; /* Jarak bawah dengan konten berikutnya */
+  padding-bottom: 10px; /* Jarak antara teks dan garis bawah */
+  display: inline-block; /* Supaya garis tidak penuh */
+}
+
+
+.feature-card .image-frame {
+  display: flex;
+  justify-content: center; /* Pusatkan gambar secara horizontal */
+  align-items: center; /* Pusatkan gambar secara vertikal */
+  width: 100px; /* Ukuran frame (lebar) */
+  height: 100px; /* Ukuran frame (tinggi) */
+  margin-bottom: 10px; /* Jarak bawah antara frame dan teks */
+}
+
+.feature-card img {
+  max-width: 100%; /* Gambar menyesuaikan ukuran frame */
+  max-height: 100%; /* Gambar menyesuaikan tinggi frame */
+  object-fit: contain; /* Pastikan gambar tidak terpotong */
+}
+
+
+.feature-card h3 {
+  font-size: 16px;
+  margin: 10px 0; /* Jarak atas dan bawah judul */
+}
+
+.feature-card p {
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.4; /* Atur tinggi baris */
+}
+
+.feature-card:hover {
+  transform: scale(1.05); /* Efek hover */
+  color: #007acc; /* Warna teks berubah saat hover */
+}
+
+
+/* Pages */
+.page {
+  display: none;
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page.active {
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#embed h1,
+#extract h1 {
+  text-align: center;
+  margin-bottom: 20px; /* Menambah jarak bawah jika diperlukan */
+}
+
+label {
+  align-self: flex-start;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+input[type="file"],
+input[type="text"],
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+input[type="text"]::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Menyelaraskan label dan input lebih dekat */
+#embedForm label,
+#extractForm label {
+  margin-bottom: 0px; /* Mengurangi jarak bawah pada label */
+  font-weight: bold;
+}
+
+#embedForm input,
+#extractForm input {
+  margin-bottom: 15px; /* Menambah sedikit jarak bawah pada input agar lebih rapi */
+}
+
+#embedForm button,
+#extractForm button {
+  margin-top: 20px;
+}
+
+/* Menambahkan petunjuk untuk key */
+.key-hint {
+  font-size: 12px;
+  color: #888;
+  align-self: flex-start;
+}
+
+
+button {
+  background: #007acc;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* button:hover {
+  background: #005a99;
+} */
+
+a {
+  text-decoration: none;
+  color: #007acc;
+}
+
+
+
+/* Default Styles: Desktop First */
+body {
+  font-size: 16px;
+}
+
+.feature-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap; /* Membungkus card di layar kecil */
+}
+
+.feature-card {
+  max-width: 300px;
+  width: 100%; /* Sesuaikan ukuran di layar kecil */
+}
+
+/* Responsif untuk Tablet */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Kurangi ukuran font */
+  }
+
+  nav {
+    flex-wrap: wrap; /* Navbar fleksibel untuk layar kecil */
+    gap: 5px;
+  }
+
+  .feature-cards {
+    gap: 10px; /* Kurangi jarak antar kartu */
+  }
+
+  .feature-card {
+    max-width: 250px; /* Lebar kartu lebih kecil */
+  }
+}
+
+/* Responsif untuk Ponsel */
+@media (max-width: 480px) {
+  body {
+    font-size: 12px; /* Ukuran font lebih kecil */
+    padding: 10px; /* Kurangi padding */
+  }
+
+  nav {
+    padding: 10px; /* Kurangi padding navbar */
+    flex-direction: column; /* Susun navbar vertikal */
+  }
+
+  .feature-cards {
+    flex-direction: column; /* Susun kartu vertikal */
+    gap: 15px; /* Tambah jarak antar kartu */
+  }
+
+  .feature-card {
+    max-width: 100%; /* Kartu memenuhi lebar layar */
+  }
+
+  .feature-card .image-frame {
+    width: 80px; /* Kurangi ukuran frame gambar */
+    height: 80px;
+  }
+
+  #features h2 {
+    font-size: 18px; /* Ukuran judul lebih kecil */
+    margin-bottom: 10px;
+  }
+}
+
+/* Responsif untuk Layar Besar */
+@media (min-width: 1200px) {
+  .feature-cards {
+    gap: 30px; /* Tambahkan jarak antar kartu */
+  }
+
+  .feature-card {
+    max-width: 350px; /* Kartu lebih besar di layar besar */
+  }
+}
+

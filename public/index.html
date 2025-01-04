@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Steganography</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <button data-page="home" class="active">Home</button>
+    <button data-page="embed">Embed</button>
+    <button data-page="extract">Extract</button>
+  </nav>
+
+  <!-- Home Page -->
+  <section id="home" class="page active">
+    <!-- <h1>Welcome to Audio Steganography</h1>
+    <p>Secure your text inside audio files effortlessly.</p>
+    <img src="placeholder.jpg" alt="Audio Encryption" class="hero-image"> -->
+    <section id="about">
+        <div class="about-container">
+          <div class="about-text">
+            <h2>About Our Application</h2>
+            <p>Welcome to Audio Watermarking with AES and Linear Congruential Generator Algorithm, 
+              an advanced solution designed to provide robust protection for your digital audio content. 
+              Whether you are an artist, producer, or a company dealing with sensitive audio data, our application offers you the perfect tools to safeguard your creations with cutting-edge technology.</p>
+          </div>
+          <div class="about-image">
+            <img src="./asset/placeholder.png" alt="Audio Watermarking" style="width: 300px; height: 300px;">
+          </div>
+        </div>
+    </section>      
+    <section id="features">
+      <h2>Our Features</h2>
+      <div class="feature-cards">
+        <a href="#embed" class="feature-card" data-page="embed">
+          <div class="image-frame">
+            <img src="./asset/embed-icon.png" alt="Embed Icon">
+          </div>
+          <h3>Embed</h3>
+          <p>Insert hidden messages or watermarks into audio files securely.</p>
+        </a>
+        <a href="#extract" class="feature-card" data-page="extract">
+          <div class="image-frame">
+            <img src="./asset/extract-icon.png" alt="Extract Icon">
+          </div>
+          <h3>Extract</h3>
+          <p>Retrieve embedded messages from audio files accurately, ensuring authenticity and protection.</p>
+        </a>
+      </div>
+    </section>
+  </section>
+
+  <section id="embed" class="page">
+    <h1>Embed Message</h1>
+    <form id="embedForm">
+      <label>Select Text File</label>
+      <input type="file" id="plainTextFile" accept=".txt" required>
+      
+      <label>Select Audio</label>
+      <input type="file" id="audioFile" accept=".wav" required>
+      
+      <label>Key</label>
+      <input type="text" id="embedKey" placeholder="ex:, 1374892367849012" required>
+      <p class="key-hint">* Key must be 16 characters long.</p>
+      
+      <button type="submit">Embed</button>
+    </form>
+    <div id="embedProcess" style="display: none;">
+      <p>Embedding in process...</p>
+    </div>
+    <div id="embedOutput" style="display: none;">
+      <p>Stego Audio created successfully!</p>
+      <p><span id="mseValue"></span></p>
+      <p><span id="psnrValue"></span> dB</p>
+      <a id="downloadStego" href="#" download="stego_audio.wav">Download Stego Audio</a>
+    </div>
+  </section>
+  
+  <section id="extract" class="page">
+    <h1>Extract Message</h1>
+    <form id="extractForm">
+      <label>Stego Audio File:</label>
+      <input type="file" id="stegoAudioFile" accept=".wav" required>
+      
+      <label>Key:</label>
+      <input type="text" id="extractKey" placeholder="e.g., 1374892367849012" required>
+      <p class="key-hint">* Key must be 16 characters long.</p>
+      
+      <button type="submit">Extract</button>
+    </form>
+    <div id="extractProcess" style="display: none;">
+      <p>Extraction in process...</p>
+    </div>
+    <div id="extractOutput" style="display: none;">
+      <h3>Extracted Encrypted Text:</h3>
+      <textarea id="encryptedText" rows="10" cols="50" readonly></textarea>
+      <h3>Extracted Plain Text:</h3>
+      <textarea id="extractedText" rows="10" cols="50" readonly></textarea>
+      <a id="downloadText" href="#" download="extracted_text.txt">Download Plain Text</a>
+    </div>
+  </section>
+  
+</body>
+</html>

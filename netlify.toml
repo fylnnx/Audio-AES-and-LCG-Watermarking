@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"  # Folder tempat Netlify Functions disimpan
+
+[[redirects]]
+  from = "/embed"
+  to = "/.netlify/functions/embed"
+  status = 200
+
+[[redirects]]
+  from = "/extract"
+  to = "/.netlify/functions/extract"
+  status = 200
