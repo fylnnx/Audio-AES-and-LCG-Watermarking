@@ -18,16 +18,17 @@ exports.handler = async (event, context) => {
       const { key } = fields;
       const stegoAudioPath = files.stegoAudio[0].path; // Path file stego audio yang di-upload
 
+      const extractedPath = path.join('/tmp', 'extracted.txt');
+      const decryptedPath = path.join('/tmp', 'decrypted.txt');
+
       try {
         // Ekstraksi cipher text dari file audio stego
         const cipherText = await extract(stegoAudioPath, key);
 
         // Simpan cipher text dalam file sementara
-        const extractedPath = path.join('/tmp', 'extracted.txt');
         await fs.writeFile(extractedPath, cipherText, 'utf8');
 
         // Dekripsi cipher text menggunakan AES ECB
-        const decryptedPath = path.join('/tmp', 'decrypted.txt');
         await decryptECB(extractedPath, decryptedPath, key);
 
         // Baca hasil dekripsi dan kirimkan ke frontend
