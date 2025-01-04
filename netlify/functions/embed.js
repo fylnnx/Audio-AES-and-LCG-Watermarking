@@ -10,8 +10,8 @@ exports.handler = async function (event, context) {
   const plainTextPath = formData.get('plainText');
   const audioPath = formData.get('audio');
 
-  const encryptedPath = path.join(__dirname, '../uploads', 'encrypted.txt');
-  const stegoPath = path.join(__dirname, '../uploads', 'stego_audio.wav');
+  const encryptedPath = path.join(__dirname, '../../uploads', 'encrypted.txt');
+  const stegoPath = path.join(__dirname, '../../uploads', 'stego_audio.wav');
 
   try {
     // Enkripsi pesan
