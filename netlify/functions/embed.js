@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { encryptECB, decryptECB } = require('../ECB');
-const { embed, extract } = require('../LCG');
-const { testPSNRandMSE } = require('../uji'); // Import fungsi uji.js
+const { encryptECB, decryptECB } = require('../../ECB');
+const { embed, extract } = require(../../LCG');
+const { testPSNRandMSE } = require('../../uji'); // Import fungsi uji.js
 
 exports.handler = async function (event, context) {
   const formData = new URLSearchParams(await event.body);
