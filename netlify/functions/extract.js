@@ -1,45 +1,43 @@
 const fs = require('fs').promises;
+const multiparty = require('multiparty');
 const path = require('path');
 const { extract } = require('../../LCG');
 const { decryptECB } = require('../../ECB');
 
 exports.handler = async (event, context) => {
-  try {
-    // Mengecek apakah body berupa form-data
-    const formData = new URLSearchParams(event.body);
-    const key = formData.get('key'); // Ambil kunci dekripsi dari form-data
+  return new Promise((resolve, reject) => {
+    const form = new multiparty.Form();
 
-    // Ambil file stego audio dari event.body (Netlify mengonversinya menjadi base64)
-    const stegoAudioFile = event.files.stegoAudio[0];
+    form.parse(event, async (err, fields, files) => {
+      if (err) {
+        return reject({ statusCode: 500, body: JSON.stringify({ message: 'Error parsing form', error: err }) });
+      }
 
-    // Tentukan path untuk menyimpan file sementara
-    const stegoAudioPath = path.join('/tmp', 'stego_audio.wav');
-    const extractedPath = path.join('/tmp', 'extracted.txt');
-    const decryptedPath = path.join('/tmp', 'decrypted.txt');
+      const key = fields.key[0];
+      const stegoAudioPath = files.stegoAudio[0].path;
 
-    // Simpan file stego audio sementara
-    await fs.writeFile(stegoAudioPath, stegoAudioFile, 'base64');
+      const extractedPath = path.join('/tmp', 'extracted.txt');
+      const decryptedPath = path.join('/tmp', 'decrypted.txt');
 
-    // Ekstraksi cipher text dari file audio stego
-    const cipherText = await extract(stegoAudioPath, key);
+      try {
+        // Ekstraksi cipher text dari stego audio
+        const cipherText = await extract(stegoAudioPath, key);
+        await fs.writeFile(extractedPath, cipherText, 'utf8');
 
-    // Simpan cipher text dalam file sementara
-    await fs.writeFile(extractedPath, cipherText, 'utf8');
+        // Dekripsi cipher text menggunakan AES ECB
+        await decryptECB(extractedPath, decryptedPath, key);
 
-    // Dekripsi cipher text menggunakan AES ECB
-    await decryptECB(extractedPath, decryptedPath, key);
+        // Baca hasil dekripsi dan kirimkan ke frontend
+        const plainText = await fs.readFile(decryptedPath, 'utf8');
 
-    // Baca hasil dekripsi dan kirimkan ke frontend
-    const plainText = await fs.readFile(decryptedPath, 'utf8');
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ cipherText, plainText }),
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Error extracting audio', error }),
-    };
-  }
+        return resolve({
+          statusCode: 200,
+          body: JSON.stringify({ cipherText, plainText }),
+        });
+      } catch (error) {
+        console.error(error);
+        return reject({ statusCode: 500, body: JSON.stringify({ message: 'Error extracting audio', error }) });
+      }
+    });
+  });
 };
