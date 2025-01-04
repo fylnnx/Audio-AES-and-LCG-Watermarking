@@ -1,53 +1,49 @@
 const fs = require('fs').promises;
-const multiparty = require('multiparty');
 const path = require('path');
-const { encryptECB } = require('../../ECB');
-const { embed } = require('../../LCG');
-const { testPSNRandMSE } = require('../../uji');
+const { encryptECB, decryptECB } = require('../ECB');
+const { embed, extract } = require('../LCG');
+const { testPSNRandMSE } = require('../uji'); // Import fungsi uji.js
 
-exports.handler = async (event, context) => {
-  return new Promise((resolve, reject) => {
-    const form = new multiparty.Form();
+exports.handler = async function (event, context) {
+  const formData = new URLSearchParams(await event.body);
+  const key = formData.get('key');
+  const plainTextPath = formData.get('plainText');
+  const audioPath = formData.get('audio');
 
-    form.parse(event, async (err, fields, files) => {
-      if (err) {
-        return reject({ statusCode: 500, body: JSON.stringify({ message: 'Error parsing form', error: err }) });
-      }
+  const encryptedPath = path.join(__dirname, '../uploads', 'encrypted.txt');
+  const stegoPath = path.join(__dirname, '../uploads', 'stego_audio.wav');
 
-      const key = fields.key[0];
-      const audioFilePath = files.audio[0].path;
-      const plainTextFilePath = files.plainText[0].path;
+  try {
+    // Enkripsi pesan
+    await encryptECB(plainTextPath, encryptedPath, key);
 
-      const encryptedPath = path.join('/tmp', 'encrypted.txt');
-      const stegoPath = path.join('/tmp', 'stego_audio.wav');
+    // Baca pesan terenkripsi
+    const message = await fs.readFile(encryptedPath, 'utf8');
 
-      try {
-        // Enkripsi pesan
-        await encryptECB(plainTextFilePath, encryptedPath, key);
+    // Embedding ke audio
+    embed(audioPath, message, key, stegoPath);
 
-        // Baca pesan terenkripsi
-        const message = await fs.readFile(encryptedPath, 'utf8');
+    // Uji MSE dan PSNR
+    const { mse, psnr } = testPSNRandMSE(audioPath, stegoPath);
 
-        // Embedding ke audio
-        await embed(audioFilePath, message, key, stegoPath);
+    // Cek apakah file stego audio sudah ada setelah proses embedding
+    try {
+      await fs.access(stegoPath, fs.constants.F_OK);
+      console.log('File stego_audio.wav sudah tersedia');
+    } catch (err) {
+      console.error('File stego_audio.wav tidak ditemukan');
+      return { statusCode: 500, body: 'File stego_audio.wav tidak tersedia' };
+    }
 
-        // Uji MSE dan PSNR
-        const { mse, psnr } = testPSNRandMSE(audioFilePath, stegoPath);
+    // Kirim file audio dan hasil uji ke frontend
+    const stegoAudioUrl = `/uploads/stego_audio.wav`;  // Path yang benar untuk file audio
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ mse, psnr, stegoAudioPath: stegoAudioUrl }),
+    };
 
-        const stegoAudio = await fs.readFile(stegoPath);
-        return resolve({
-          statusCode: 200,
-          headers: {
-            'Content-Type': 'audio/wav',
-            'Content-Disposition': 'attachment; filename="stego_audio.wav"',
-          },
-          body: stegoAudio.toString('base64'),
-          isBase64Encoded: true,
-        });
-      } catch (error) {
-        console.error(error);
-        return reject({ statusCode: 500, body: JSON.stringify({ message: 'Error embedding audio', error }) });
-      }
-    });
-  });
+  } catch (error) {
+    console.error(error);
+    return { statusCode: 500, body: 'Error embedding audio' };
+  }
 };
