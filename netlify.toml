@@ -8,3 +8,6 @@
   functions = "netlify/functions"     # Menggunakan folder yang sama untuk fungsi di development
   publish = "public"                  # Mengarahkan file statis ke folder public di development mode
   command = "npm run dev"              # Perintah untuk menjalankan server development lokal jika ada
+
+[build.environment]
+  NODE_VERSION = "18"
