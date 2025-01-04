@@ -4,17 +4,22 @@ const { extract } = require('../../LCG');
 const { decryptECB } = require('../../ECB');
 
 exports.handler = async (event, context) => {
-  const formData = new URLSearchParams(event.body);
-  const key = formData.get('key'); // Get decryption key
-
-  // Get the file from event
-  const files = event.files;
-  const stegoAudioPath = files.stegoAudio[0].path; // Path file stego audio yang di-upload
-
-  const extractedPath = path.join('/tmp', 'extracted.txt');
-  const decryptedPath = path.join('/tmp', 'decrypted.txt');
-
   try {
+    // Mengecek apakah body berupa form-data
+    const formData = new URLSearchParams(event.body);
+    const key = formData.get('key'); // Ambil kunci dekripsi dari form-data
+
+    // Ambil file stego audio dari event.body (Netlify mengonversinya menjadi base64)
+    const stegoAudioFile = event.files.stegoAudio[0];
+
+    // Tentukan path untuk menyimpan file sementara
+    const stegoAudioPath = path.join('/tmp', 'stego_audio.wav');
+    const extractedPath = path.join('/tmp', 'extracted.txt');
+    const decryptedPath = path.join('/tmp', 'decrypted.txt');
+
+    // Simpan file stego audio sementara
+    await fs.writeFile(stegoAudioPath, stegoAudioFile, 'base64');
+
     // Ekstraksi cipher text dari file audio stego
     const cipherText = await extract(stegoAudioPath, key);
 
