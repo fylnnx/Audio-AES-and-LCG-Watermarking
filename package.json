@@ -27,8 +27,5 @@
     "express": "^4.17.1",
     "path": "^0.12.7"
   },
-  "devDependencies": {
-    "netlify-cli": "^3.23.0"
-  },
   "description": ""
 }
