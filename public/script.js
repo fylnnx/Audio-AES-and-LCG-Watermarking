@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (plainTextFile && audioFile && key) {
       const embedProcess = document.getElementById('embedProcess');
-      embedProcess.style.display = 'block';
+      embedProcess.style.display = 'block'; // Menampilkan proses loading
       const formData = new FormData();
       formData.append('plainText', plainTextFile);
       formData.append('audio', audioFile);
@@ -34,16 +34,18 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(`Failed to embed. Status: ${response.status}`);
         }
 
-        const blob = await response.blob(); // Mengambil file hasil embedding
-        const url = URL.createObjectURL(blob);
+        // Mengambil file hasil embedding sebagai blob
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob); // Membuat URL objek untuk blob
 
+        // Menampilkan link download
         const link = document.getElementById('downloadStego');
         link.href = url;
-        link.download = 'stego_audio.wav';
+        link.download = 'stego_audio.wav';  // Menentukan nama file untuk download
         link.style.display = 'block';
-        document.getElementById('embedOutput').style.display = 'block';
+        document.getElementById('embedOutput').style.display = 'block'; // Menampilkan hasil output
 
-        embedProcess.style.display = 'none';
+        embedProcess.style.display = 'none'; // Menyembunyikan proses loading
       } catch (error) {
         console.error('Error during embedding:', error);
         alert('Terjadi kesalahan saat proses embed.');
@@ -61,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (stegoAudioFile && key) {
       const extractProcess = document.getElementById('extractProcess');
-      extractProcess.style.display = 'block';
+      extractProcess.style.display = 'block'; // Menampilkan proses loading
 
       const formData = new FormData();
       formData.append('stegoAudio', stegoAudioFile);
@@ -77,19 +79,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await response.json();
         console.log('result:', result);
 
+        // Menampilkan hasil extract
         document.getElementById('encryptedText').value = result.cipherText;
         document.getElementById('extractedText').value = result.plainText;
 
+        // Membuat link download untuk file teks yang diekstrak
         const link = document.getElementById('downloadText');
         link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result.plainText);
-        link.download = 'extracted_text.txt';
+        link.download = 'extracted_text.txt';  // Menentukan nama file untuk download
         link.style.display = 'block';
-        document.getElementById('extractOutput').style.display = 'block';
+        document.getElementById('extractOutput').style.display = 'block'; // Menampilkan hasil output
       } catch (error) {
         console.error('Error during extraction:', error);
         alert('Terjadi kesalahan saat proses extract.');
       }
-      extractProcess.style.display = 'none';
+      extractProcess.style.display = 'none'; // Menyembunyikan proses loading
     } else {
       alert('Lengkapi semua input sebelum submit!');
     }
