@@ -1,43 +1,28 @@
 const fs = require('fs').promises;
-const multiparty = require('multiparty');
 const path = require('path');
-const { extract } = require('../../LCG');
-const { decryptECB } = require('../../ECB');
+const { encryptECB, decryptECB } = require('../ECB');
+const { embed, extract } = require('../LCG');
 
-exports.handler = async (event, context) => {
-  return new Promise((resolve, reject) => {
-    const form = new multiparty.Form();
+exports.handler = async function (event, context) {
+  const formData = new URLSearchParams(await event.body);
+  const key = formData.get('key');
+  const stegoAudioPath = formData.get('stegoAudio');
 
-    form.parse(event, async (err, fields, files) => {
-      if (err) {
-        return reject({ statusCode: 500, body: JSON.stringify({ message: 'Error parsing form', error: err }) });
-      }
+  const extractedPath = path.join(__dirname, '../uploads', 'extracted.txt');
+  const decryptedPath = path.join(__dirname, '../uploads', 'decrypted.txt');
 
-      const key = fields.key[0];
-      const stegoAudioPath = files.stegoAudio[0].path;
+  try {
+    const cipherText = extract(stegoAudioPath, key);
+    await fs.writeFile(extractedPath, cipherText, 'utf8');
+    await decryptECB(extractedPath, decryptedPath, key);
 
-      const extractedPath = path.join('/tmp', 'extracted.txt');
-      const decryptedPath = path.join('/tmp', 'decrypted.txt');
-
-      try {
-        // Ekstraksi cipher text dari stego audio
-        const cipherText = await extract(stegoAudioPath, key);
-        await fs.writeFile(extractedPath, cipherText, 'utf8');
-
-        // Dekripsi cipher text menggunakan AES ECB
-        await decryptECB(extractedPath, decryptedPath, key);
-
-        // Baca hasil dekripsi dan kirimkan ke frontend
-        const plainText = await fs.readFile(decryptedPath, 'utf8');
-
-        return resolve({
-          statusCode: 200,
-          body: JSON.stringify({ cipherText, plainText }),
-        });
-      } catch (error) {
-        console.error(error);
-        return reject({ statusCode: 500, body: JSON.stringify({ message: 'Error extracting audio', error }) });
-      }
-    });
-  });
+    const plainText = await fs.readFile(decryptedPath, 'utf8');
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ cipherText, plainText }),
+    };
+  } catch (error) {
+    console.error(error);
+    return { statusCode: 500, body: 'Error extracting audio' };
+  }
 };
