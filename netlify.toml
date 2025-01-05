@@ -1,13 +1,8 @@
 [build]
-  base = "/"                         # Lokasi root proyek, tempat package.json berada
-  publish = "public"                  # Folder untuk file statis hasil build (misalnya index.html, script.js, style.css)
-  command = ""                        # Kosong karena tidak ada build step khusus, bisa diisi jika menggunakan bundler seperti webpack
-  functions = "netlify/functions"     # Folder untuk menyimpan Netlify Functions (misalnya embed.js dan extract.js)
+  publish = "public"
 
-[dev]
-  functions = "netlify/functions"     # Menggunakan folder yang sama untuk fungsi di development
-  publish = "public"                  # Mengarahkan file statis ke folder public di development mode
-  command = "npm run dev"              # Perintah untuk menjalankan server development lokal jika ada
-
-[build.environment]
+[[redirects]]
+  from = "/api/*"
+  to = "/index.html"
+  status = 200
   NODE_VERSION = "18"
