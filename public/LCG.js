@@ -64,9 +64,10 @@ function embed(audioBuffer, message, key, OutputFileName) {
         audioSamples[i] = parseInt(audioBitsArray.slice(i * 16, (i + 1) * 16).join(''), 2);
     }
 
-    const outputBuffer = Buffer.from(audioSamples.buffer);
-    fs.writeFileSync(OutputFileName, outputBuffer);
-    console.log("Embed Stego Audio:", OutputFileName);
+    // const outputBuffer = Buffer.from(audioSamples.buffer);
+    // fs.writeFileSync(OutputFileName, outputBuffer);
+    // console.log("Embed Stego Audio:", OutputFileName);
+    return audioSamples.buffer;
 }
 
 function extract(AudioFileName, key) {
