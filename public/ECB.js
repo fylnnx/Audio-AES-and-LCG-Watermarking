@@ -1,32 +1,23 @@
-const { encrypt, decrypt } = require('./AES');
+import { encrypt, decrypt } from './AES.js';
 
-// Fungsi untuk mengenkripsi data
 function encryptECB(inputData, key) {
-    // Pisahkan inputData menjadi blok 16 karakter
     const blockSize = 16;
     let blocks = [];
 
-    // Tambahkan padding jika panjang data bukan kelipatan 16
     if (inputData.length % blockSize !== 0) {
         const paddingLength = blockSize - (inputData.length % blockSize);
-        inputData += ' '.repeat(paddingLength); // Tambahkan spasi sebagai padding
+        inputData += ' '.repeat(paddingLength);
     }
 
-    // Pisahkan data menjadi blok-blok 16 karakter
     for (let i = 0; i < inputData.length; i += blockSize) {
         blocks.push(inputData.slice(i, i + blockSize));
     }
 
-    // Enkripsi setiap blok
     const encryptedBlocks = blocks.map(block => encrypt(block, key));
-    const encryptedString = encryptedBlocks.join('');
-
-    return encryptedString;
+    return encryptedBlocks.join('');
 }
 
-// Fungsi untuk mendekripsi data
 function decryptECB(encryptedData, key) {
-    // Pisahkan data terenkripsi menjadi blok 16 karakter
     const blockSize = 16;
     let blocks = [];
 
@@ -34,11 +25,8 @@ function decryptECB(encryptedData, key) {
         blocks.push(encryptedData.slice(i, i + blockSize));
     }
 
-    // Dekripsi setiap blok
     const decryptedBlocks = blocks.map(block => decrypt(block, key));
-    const decryptedString = decryptedBlocks.join('').trimEnd(); // Hapus padding di akhir
-
-    return decryptedString;
+    return decryptedBlocks.join('').trimEnd();
 }
 
-module.exports = { encryptECB, decryptECB };
+export default { encryptECB, decryptECB };
