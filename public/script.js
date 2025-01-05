@@ -1,4 +1,4 @@
-import uji from './uji.js';  =
+import uji from './uji.js';  
 import ecb from './ECB.js';   
 import lcg from './LCG.js';    
 
