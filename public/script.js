@@ -1,6 +1,6 @@
-import { calculateMSE, calculatePSNR, readAudioFile, testPSNRandMSE } from './uji';
-import { encryptECB, decryptECB } from './ECB';
-import { embed, extract } from './LCG';
+import { calculateMSE, calculatePSNR, readAudioFile, testPSNRandMSE } from 'uji.js';
+import { encryptECB, decryptECB } from 'ECB.js';
+import { embed, extract } from 'LCG.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const navButtons = document.querySelectorAll('[data-page]');
