@@ -12,6 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Fungsi untuk mengubah file menjadi base64
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   // Embed Form Submission
   document.getElementById('embedForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -23,20 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const embedProcess = document.getElementById('embedProcess');
       embedProcess.style.display = 'block';
 
-      // Mengubah data menjadi JSON untuk dikirim
-      const formData = new FormData();
-      formData.append('plainText', plainTextFile);
-      formData.append('audio', audioFile);
-      formData.append('key', key);
-
-      // Ubah FormData menjadi objek JSON
-      const requestData = {
-        key: key,
-        plainTextFile: await plainTextFile.text(), // Membaca konten file sebagai teks
-        audioFile: await audioFile.text() // Membaca konten file audio sebagai teks (berpotensi perlu menggunakan metode lain untuk mengonversi file audio)
-      };
-
       try {
+        const plainTextBase64 = await toBase64(plainTextFile);  // Mengubah file menjadi base64
+        const audioBase64 = await toBase64(audioFile);  // Mengubah audio file menjadi base64
+
+        const requestData = {
+          key: key,
+          plainTextFile: plainTextBase64,  // Kirim file dalam bentuk base64
+          audioFile: audioBase64  // Kirim audio dalam bentuk base64
+        };
+
         const response = await fetch('/.netlify/functions/embed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -52,8 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mseValue').textContent = `MSE: ${result.mse}`;
         document.getElementById('psnrValue').textContent = `PSNR: ${result.psnr}`;
 
+        // Menampilkan link untuk download file stego audio
         const link = document.getElementById('downloadStego');
-        link.href = result.stegoAudioPath;  // Update href to proper stego audio path
+        link.href = result.stegoAudioPath;  // Update href to proper stego audio path (base64 or URL)
         link.style.display = 'block';
         document.getElementById('embedOutput').style.display = 'block';
 
@@ -77,26 +84,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const extractProcess = document.getElementById('extractProcess');
       extractProcess.style.display = 'block';
 
-      const requestData = {
-        key: key,
-        stegoAudioFile: await stegoAudioFile.text() // Membaca konten file audio sebagai teks
-      };
+      try {
+        const stegoAudioBase64 = await toBase64(stegoAudioFile);  // Mengubah file stego audio menjadi base64
 
-      const response = await fetch('/.netlify/functions/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-      });
+        const requestData = {
+          key: key,
+          stegoAudioFile: stegoAudioBase64  // Kirim file stego dalam bentuk base64
+        };
 
-      const result = await response.json();
+        const response = await fetch('/.netlify/functions/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestData)
+        });
 
-      document.getElementById('encryptedText').value = result.cipherText;
-      document.getElementById('extractedText').value = result.plainText;
+        const result = await response.json();
 
-      const link = document.getElementById('downloadText');
-      link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result.plainText);
-      document.getElementById('extractOutput').style.display = 'block';
+        document.getElementById('encryptedText').value = result.cipherText;
+        document.getElementById('extractedText').value = result.plainText;
+
+        // Menampilkan link untuk download hasil teks
+        const link = document.getElementById('downloadText');
+        link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result.plainText);
+        document.getElementById('extractOutput').style.display = 'block';
+
+      } catch (error) {
+        console.error('Error during extraction:', error);
+        alert('Terjadi kesalahan saat proses extract.');
+      }
+      extractProcess.style.display = 'none';
     }
-    extractProcess.style.display = 'none';
   });
 });
