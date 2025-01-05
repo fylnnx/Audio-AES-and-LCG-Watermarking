@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { encryptECB} = require('../../ECB');
-const { embed } = require('../../LCG');
-const { testPSNRandMSE } = require('../../uji'); // Import fungsi uji.js
+const { encryptECB} = require('../ECB');
+const { embed } = require('../LCG');
+const { testPSNRandMSE } = require('../uji'); // Import fungsi uji.js
 
 exports.handler = async (event) => {
   try {
