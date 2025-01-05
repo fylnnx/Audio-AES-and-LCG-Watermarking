@@ -22,42 +22,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (plainTextFile && audioFile && key) {
       const embedProcess = document.getElementById('embedProcess');
       embedProcess.style.display = 'block';
+
+      // Mengubah data menjadi JSON untuk dikirim
       const formData = new FormData();
       formData.append('plainText', plainTextFile);
       formData.append('audio', audioFile);
       formData.append('key', key);
 
+      // Ubah FormData menjadi objek JSON
+      const requestData = {
+        key: key,
+        plainTextFile: await plainTextFile.text(), // Membaca konten file sebagai teks
+        audioFile: await audioFile.text() // Membaca konten file audio sebagai teks (berpotensi perlu menggunakan metode lain untuk mengonversi file audio)
+      };
+
       try {
-        const response = await fetch('/.netlify/functions/embed', { method: 'POST', body: JSON.stringify({
-          plainTextFile: plainTextFile, 
-          audioFile: audioFile, 
-          key: key
-        })});
+        const response = await fetch('/.netlify/functions/embed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestData)
+        });
 
         if (!response.ok) {
           throw new Error(`Failed to embed. Status: ${response.status}`);
         }
 
-        const contentType = response.headers.get('Content-Type');
-        if (contentType.includes('application/json')) {
-          // Parsing JSON response
-          const result = await response.json();
-          console.log('result:', result);
-          document.getElementById('mseValue').textContent = `MSE: ${result.mse}`;
-          document.getElementById('psnrValue').textContent = `PSNR: ${result.psnr}`;
+        const result = await response.json();
+        console.log('result:', result);
+        document.getElementById('mseValue').textContent = `MSE: ${result.mse}`;
+        document.getElementById('psnrValue').textContent = `PSNR: ${result.psnr}`;
 
-          const link = document.getElementById('downloadStego');
-          link.href = result.stegoAudioPath;  // Update href to proper stego audio path
-          link.style.display = 'block';
-          document.getElementById('embedOutput').style.display = 'block';
-        } else {
-          throw new Error('Unexpected response type');
-        }
-        embedProcess.style.display = 'none';
+        const link = document.getElementById('downloadStego');
+        link.href = result.stegoAudioPath;  // Update href to proper stego audio path
+        link.style.display = 'block';
+        document.getElementById('embedOutput').style.display = 'block';
+
       } catch (error) {
         console.error('Error during embedding:', error);
         alert('Terjadi kesalahan saat proses embed.');
       }
+      embedProcess.style.display = 'none';
     } else {
       alert('Lengkapi semua input sebelum submit!');
     }
@@ -73,14 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const extractProcess = document.getElementById('extractProcess');
       extractProcess.style.display = 'block';
 
-      const formData = new FormData();
-      formData.append('stegoAudio', stegoAudioFile);
-      formData.append('key', key);
+      const requestData = {
+        key: key,
+        stegoAudioFile: await stegoAudioFile.text() // Membaca konten file audio sebagai teks
+      };
 
-      const response = await fetch('/.netlify/functions/extract', { method: 'POST', body: JSON.stringify({
-        stegoAudioFile: stegoAudioFile, 
-        key: key
-      })});
+      const response = await fetch('/.netlify/functions/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      });
+
       const result = await response.json();
 
       document.getElementById('encryptedText').value = result.cipherText;
