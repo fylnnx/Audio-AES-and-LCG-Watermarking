@@ -103,16 +103,6 @@ function addRoundKey(state, key) {
 //     return XOR(state, round_key);
 // }
 
-function subBytes(state) {
-    for (let r = 0; r < 4; r++) {
-        for (let c = 0; c < 4; c++) {
-            state[r][c] = Sbox[state[r][c] >> 4][state[r][c] & 0x0F];
-        }
-    }
-    return state;
-}
-
-
 
 function subBytes(state) {
     for (let r = 0; r < 4; r++) {
