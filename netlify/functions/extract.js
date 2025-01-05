@@ -7,16 +7,23 @@ exports.handler = async (event) => {
     // Parsing data dari event body
     const { key, stegoAudio } = JSON.parse(event.body);
 
+    if (!key || !stegoAudio) {
+      throw new Error('Key atau stegoAudio tidak boleh kosong.');
+    }
+
     // Path sementara untuk file hasil ekstraksi dan dekripsi
+    const stegoAudioPath = `/tmp/stego_audio_${Date.now()}.wav`;
     const extractedPath = `/tmp/extracted_${Date.now()}.txt`;
     const decryptedPath = `/tmp/decrypted_${Date.now()}.txt`;
 
     // Simpan stego audio ke file sementara di /tmp
-    const stegoAudioPath = `/tmp/stego_audio_${Date.now()}.wav`;
     await fs.writeFile(stegoAudioPath, Buffer.from(stegoAudio, 'base64'));
 
     // Ekstraksi cipher text dari stego audio
     const cipherText = extract(stegoAudioPath, key);
+    if (!cipherText) {
+      throw new Error('Gagal mengekstrak cipher text dari stego audio.');
+    }
 
     // Simpan cipher text ke file sementara
     await fs.writeFile(extractedPath, cipherText, 'utf8');
@@ -33,7 +40,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ cipherText, plainText }),
     };
   } catch (error) {
-    console.error('Error extracting audio:', error);
-    return { statusCode: 500, body: 'Error extracting audio' };
+    console.error('Error extracting audio:', error.message || error);
+    return { statusCode: 500, body: `Error extracting audio: ${error.message || 'Unknown error'}` };
   }
 };
