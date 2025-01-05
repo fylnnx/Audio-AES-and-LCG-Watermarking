@@ -38,7 +38,6 @@ function audioSamplesToBinaryString(audioSamples) {
 }
 
 function embed(AudioFileName, message, key, OutputFileName) {
-    const audioBuffer = fs.readFileSync(AudioFileName);
     const audioSamples = new Int16Array(audioBuffer.buffer, audioBuffer.byteOffset, audioBuffer.length / Int16Array.BYTES_PER_ELEMENT);
 
     let audioBits = audioSamplesToBinaryString(audioSamples);
