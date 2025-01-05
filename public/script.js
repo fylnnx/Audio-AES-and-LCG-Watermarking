@@ -1,3 +1,7 @@
+import { calculateMSE, calculatePSNR, readAudioFile, testPSNRandMSE } from './uji';
+import { encryptECB, decryptECB } from './ECB';
+import { embed, extract } from './LCG';
+
 document.addEventListener('DOMContentLoaded', () => {
   const navButtons = document.querySelectorAll('[data-page]');
 
@@ -12,16 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Fungsi untuk mengonversi file ke base64
-  function toBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]); // Ambil hanya bagian base64
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
   // Embed Form Submission
   document.getElementById('embedForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -32,45 +26,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (plainTextFile && audioFile && key) {
       const embedProcess = document.getElementById('embedProcess');
       embedProcess.style.display = 'block';
-
-      // Mengonversi file ke base64
-      const plainTextBase64 = await toBase64(plainTextFile);
-      const audioBase64 = await toBase64(audioFile);
-
-      const requestData = {
-        key: key,
-        plainTextFile: plainTextBase64,
-        audioFile: audioBase64
-      };
+      const formData = new FormData();
+      formData.append('plainText', plainTextFile);
+      formData.append('audio', audioFile);
+      formData.append('key', key);
 
       try {
-        const response = await fetch('/.netlify/functions/embed', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestData)
-        });
+        // Baca file teks dan enkripsi
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const encryptedText = await encryptECB(reader.result, key);  // Enkripsi isi teks
 
-        if (!response.ok) {
-          const error = await response.json();
-          console.error("Error response:", error);
-          throw new Error(`Failed to embed. Status: ${response.status}`);
-        }
+          // Simulasi proses embedding pesan terenkripsi ke dalam audio
+          const stegoAudio = embed(audioFile.name, encryptedText, key);
 
-        const result = await response.json();
-        console.log('result:', result);
-        document.getElementById('mseValue').textContent = `MSE: ${result.mse}`;
-        document.getElementById('psnrValue').textContent = `PSNR: ${result.psnr}`;
+          // Menghitung MSE dan PSNR
+          const originalSamples = await readAudioFile(audioFile);
+          const stegoSamples = await readAudioFile(stegoAudio);
+          
+          const mse = calculateMSE(originalSamples, stegoSamples);
+          const psnr = calculatePSNR(mse);
 
-        const link = document.getElementById('downloadStego');
-        link.href = result.stegoAudioPath;  // Update href to proper stego audio path
-        link.style.display = 'block';
-        document.getElementById('embedOutput').style.display = 'block';
+          // Tampilkan hasilnya
+          document.getElementById('mseValue').textContent = `MSE: ${mse}`;
+          document.getElementById('psnrValue').textContent = `PSNR: ${psnr}`;
 
+          const link = document.getElementById('downloadStego');
+          link.href = stegoAudio;  // Path ke stego audio
+          link.style.display = 'block';
+          document.getElementById('embedOutput').style.display = 'block';
+
+          embedProcess.style.display = 'none';
+        };
+        reader.readAsText(plainTextFile);  // Baca file sebagai teks
       } catch (error) {
         console.error('Error during embedding:', error);
         alert('Terjadi kesalahan saat proses embed.');
       }
-      embedProcess.style.display = 'none';
     } else {
       alert('Lengkapi semua input sebelum submit!');
     }
@@ -86,35 +78,31 @@ document.addEventListener('DOMContentLoaded', () => {
       const extractProcess = document.getElementById('extractProcess');
       extractProcess.style.display = 'block';
 
-      const requestData = {
-        key: key,
-        stegoAudioFile: await toBase64(stegoAudioFile)
-      };
+      const formData = new FormData();
+      formData.append('stegoAudio', stegoAudioFile);
+      formData.append('key', key);
 
       try {
-        const response = await fetch('/.netlify/functions/extract', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestData)
-        });
+        // Simulasi ekstraksi pesan dari stego audio
+        const extractedMessage = extract(stegoAudioFile.name, key);
 
-        if (!response.ok) {
-          throw new Error(`Failed to extract. Status: ${response.status}`);
-        }
+        // Simulasi dekripsi pesan yang diekstrak
+        const decryptedMessage = await decryptECB(extractedMessage, key);
 
-        const result = await response.json();
-        document.getElementById('encryptedText').value = result.cipherText;
-        document.getElementById('extractedText').value = result.plainText;
+        // Tampilkan hasil ekstraksi dan dekripsi
+        document.getElementById('encryptedText').value = extractedMessage;
+        document.getElementById('extractedText').value = decryptedMessage;
 
         const link = document.getElementById('downloadText');
-        link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result.plainText);
-        link.download = 'extracted_text.txt';
+        link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(decryptedMessage);
+        link.download = 'extracted_message.txt';
         link.style.display = 'block';
         document.getElementById('extractOutput').style.display = 'block';
       } catch (error) {
         console.error('Error during extraction:', error);
-        alert('Terjadi kesalahan saat proses ekstraksi.');
+        alert('Terjadi kesalahan saat proses extract.');
       }
+
       extractProcess.style.display = 'none';
     } else {
       alert('Lengkapi semua input sebelum submit!');
