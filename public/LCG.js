@@ -39,7 +39,7 @@ function embed(audioBuffer, message, key) {
     // Konversi panjang pesan menjadi biner 16-bit
     const messageLengthBits = messageBits.length.toString(2).padStart(16, '0');
 
-    const modifiedBuffer = Buffer.from(audioBuffer); // Salin buffer
+    const modifiedBuffer = new Uint8Array(audioBuffer); // Salin buffer menjadi Uint8Array
 
     // Gunakan LCG untuk menentukan posisi byte panjang pesan
     const seed = getSeedFromKey(key);
@@ -66,7 +66,7 @@ function embed(audioBuffer, message, key) {
         modifiedBuffer[byteIndex] = modifiedByte;
     }
 
-    return modifiedBuffer.toString('base64');  // Kembalikan sebagai Base64
+    return btoa(String.fromCharCode.apply(null, modifiedBuffer));  // Kembalikan sebagai Base64
 }
 
 // Fungsi untuk ekstrak pesan dari audio
