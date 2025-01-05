@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('psnrValue').textContent = `PSNR: ${psnr}`;
 
           // Buat file audio output dan unduh
-          const outputBlob = new Blob([outputAudioBuffer], { type: 'audio/wav' });
+          const outputBlob = new Blob([stegoAudio], { type: 'audio/wav' });
           const url = URL.createObjectURL(outputBlob);
           const link = document.createElement('a');
           link.href = url;
