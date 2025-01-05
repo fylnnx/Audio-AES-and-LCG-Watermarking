@@ -1,4 +1,7 @@
-import { encrypt, decrypt } from './AES.js';
+import AES from './AES.js';
+
+const { encrypt, decrypt } = AES;
+
 
 function stringToByteArray(str) {
     return Array.from(str).map(char => char.charCodeAt(0));
