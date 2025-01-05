@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 // Fungsi untuk mendapatkan seed dari kunci
 function getSeedFromKey(key) {
     let seed = key.charCodeAt(0);
@@ -103,4 +101,4 @@ function extract(audioBuffer, key) {
     return message;
 }
 
-module.exports = { embed, extract };
+export default { embed, extract };
