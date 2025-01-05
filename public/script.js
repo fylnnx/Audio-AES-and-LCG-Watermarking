@@ -144,6 +144,22 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Lengkapi semua input sebelum submit!');
     }
   });
+
+  // Fungsi fetch dengan timeout
+  async function fetchWithTimeout(url, options, timeout = 10000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Permintaan timeout. Silakan coba lagi.');
+      }
+      throw error;
+    }
+  }
 });
 
 // Fungsi untuk membaca file sebagai base64
@@ -170,20 +186,4 @@ function base64ToBlob(base64, mimeType) {
     byteArrays.push(byteArray);
   }
   return new Blob(byteArrays, { type: mimeType });
-}
-
-// Fungsi fetch dengan timeout
-async function fetchWithTimeout(url, options, timeout = 10000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      throw new Error('Permintaan timeout. Silakan coba lagi.');
-    }
-    throw error;
-  }
 }
