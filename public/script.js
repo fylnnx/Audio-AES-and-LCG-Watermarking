@@ -54,8 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // document.getElementById('mseValue').textContent = `MSE: ${mse}`;
           // document.getElementById('psnrValue').textContent = `PSNR: ${psnr}`;
 
+
           // Buat file audio output dan unduh
-          const outputBlob = new Blob([stegoAudio], { type: 'audio/wav' });
+          const outputBlob = new Blob([stegoAudioBuffer], { type: 'audio/wav' });
           const url = URL.createObjectURL(outputBlob);
           const link = document.createElement('a');
           link.href = url;
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.body.appendChild(link);
           link.click();
           link.remove();
+
 
           embedProcess.style.display = 'none';
         };
