@@ -37,8 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = async () => {
           const encryptedText = await ecb.encryptECB(reader.result, key);  // Enkripsi isi teks
 
+          // Baca file audio sebagai ArrayBuffer
+          const audioArrayBuffer = await audioFile.arrayBuffer();
+          
           // Simulasi proses embedding pesan terenkripsi ke dalam audio
-          const stegoAudio = lcg.embed(audioFile.name, encryptedText, key);
+          const stegoAudio = lcg.embed(audioArrayBuffer, encryptedText, key);
 
           // Menghitung MSE dan PSNR
           const originalSamples = await uji.readAudioFile(audioFile);
@@ -51,10 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('mseValue').textContent = `MSE: ${mse}`;
           document.getElementById('psnrValue').textContent = `PSNR: ${psnr}`;
 
-          const link = document.getElementById('downloadStego');
-          link.href = stegoAudio;  // Path ke stego audio
-          link.style.display = 'block';
-          document.getElementById('embedOutput').style.display = 'block';
+          // Buat file audio output dan unduh
+          const outputBlob = new Blob([outputAudioBuffer], { type: 'audio/wav' });
+          const url = URL.createObjectURL(outputBlob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'stego_audio.wav';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
 
           embedProcess.style.display = 'none';
         };
