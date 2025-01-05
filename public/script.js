@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Fungsi untuk mengubah file menjadi base64
+  // Fungsi untuk mengonversi file ke base64
   function toBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
+      reader.onloadend = () => resolve(reader.result.split(',')[1]); // Ambil hanya bagian base64
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
@@ -33,16 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const embedProcess = document.getElementById('embedProcess');
       embedProcess.style.display = 'block';
 
+      // Mengonversi file ke base64
+      const plainTextBase64 = await toBase64(plainTextFile);
+      const audioBase64 = await toBase64(audioFile);
+
+      const requestData = {
+        key: key,
+        plainTextFile: plainTextBase64,
+        audioFile: audioBase64
+      };
+
       try {
-        const plainTextBase64 = await toBase64(plainTextFile);  // Mengubah file menjadi base64
-        const audioBase64 = await toBase64(audioFile);  // Mengubah audio file menjadi base64
-
-        const requestData = {
-          key: key,
-          plainTextFile: plainTextBase64,  // Kirim file dalam bentuk base64
-          audioFile: audioBase64  // Kirim audio dalam bentuk base64
-        };
-
         const response = await fetch('/.netlify/functions/embed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -50,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!response.ok) {
+          const error = await response.json();
+          console.error("Error response:", error);
           throw new Error(`Failed to embed. Status: ${response.status}`);
         }
 
@@ -58,9 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mseValue').textContent = `MSE: ${result.mse}`;
         document.getElementById('psnrValue').textContent = `PSNR: ${result.psnr}`;
 
-        // Menampilkan link untuk download file stego audio
         const link = document.getElementById('downloadStego');
-        link.href = result.stegoAudioPath;  // Update href to proper stego audio path (base64 or URL)
+        link.href = result.stegoAudioPath;  // Update href to proper stego audio path
         link.style.display = 'block';
         document.getElementById('embedOutput').style.display = 'block';
 
@@ -84,35 +86,38 @@ document.addEventListener('DOMContentLoaded', () => {
       const extractProcess = document.getElementById('extractProcess');
       extractProcess.style.display = 'block';
 
+      const requestData = {
+        key: key,
+        stegoAudioFile: await toBase64(stegoAudioFile)
+      };
+
       try {
-        const stegoAudioBase64 = await toBase64(stegoAudioFile);  // Mengubah file stego audio menjadi base64
-
-        const requestData = {
-          key: key,
-          stegoAudioFile: stegoAudioBase64  // Kirim file stego dalam bentuk base64
-        };
-
         const response = await fetch('/.netlify/functions/extract', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestData)
         });
 
-        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(`Failed to extract. Status: ${response.status}`);
+        }
 
+        const result = await response.json();
         document.getElementById('encryptedText').value = result.cipherText;
         document.getElementById('extractedText').value = result.plainText;
 
-        // Menampilkan link untuk download hasil teks
         const link = document.getElementById('downloadText');
         link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result.plainText);
+        link.download = 'extracted_text.txt';
+        link.style.display = 'block';
         document.getElementById('extractOutput').style.display = 'block';
-
       } catch (error) {
         console.error('Error during extraction:', error);
-        alert('Terjadi kesalahan saat proses extract.');
+        alert('Terjadi kesalahan saat proses ekstraksi.');
       }
       extractProcess.style.display = 'none';
+    } else {
+      alert('Lengkapi semua input sebelum submit!');
     }
   });
 });
