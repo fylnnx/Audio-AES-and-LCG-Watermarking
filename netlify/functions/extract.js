@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { decryptECB } = require('../../ECB');
-const { extract } = require('../../LCG');
+const { decryptECB } = require('../ECB');
+const { extract } = require('../LCG');
 
 exports.handler = async (event, context) => {
   const { stegoAudio, key } = JSON.parse(event.body);
