@@ -37,7 +37,40 @@ function audioSamplesToBinaryString(audioSamples) {
     }).join('');
 }
 
-function embed(audioBuffer, message, key, OutputFileName) {
+// function embed(audioBuffer, message, key, OutputFileName) {
+//     const audioSamples = new Int16Array(audioBuffer.buffer, audioBuffer.byteOffset, audioBuffer.length / Int16Array.BYTES_PER_ELEMENT);
+
+//     let audioBits = audioSamplesToBinaryString(audioSamples);
+//     const messageBits = messageToBinary(message);
+
+//     const seed = getSeedFromKey(key);
+//     const pnCode = generatePnCode(messageBits.length, seed);
+
+//     // Encode message length in the first 16 bits (353 to 368)
+//     const messageLengthBits = messageBits.length.toString(2).padStart(16, '0');
+//     let audioBitsArray = audioBits.split('');
+//     for (let i = 0; i < 16; i++) {
+//         audioBitsArray[353 + i] = messageLengthBits[i]; // Map length bits directly
+//     }
+
+//     // Embed the actual message using PN code
+//     for (let i = 0; i < messageBits.length; i++) {
+//         const position = pnCode[i];
+//         audioBitsArray[position] = messageBits[i];
+//     }
+
+//     // Convert modified bits back to samples
+//     for (let i = 0; i < audioSamples.length; i++) {
+//         audioSamples[i] = parseInt(audioBitsArray.slice(i * 16, (i + 1) * 16).join(''), 2);
+//     }
+
+//     // const outputBuffer = Buffer.from(audioSamples.buffer);
+//     // fs.writeFileSync(OutputFileName, outputBuffer);
+//     // console.log("Embed Stego Audio:", OutputFileName);
+//     return audioSamples.buffer;
+// }
+
+function embed(audioBuffer, message, key) {
     const audioSamples = new Int16Array(audioBuffer.buffer, audioBuffer.byteOffset, audioBuffer.length / Int16Array.BYTES_PER_ELEMENT);
 
     let audioBits = audioSamplesToBinaryString(audioSamples);
@@ -64,11 +97,14 @@ function embed(audioBuffer, message, key, OutputFileName) {
         audioSamples[i] = parseInt(audioBitsArray.slice(i * 16, (i + 1) * 16).join(''), 2);
     }
 
-    // const outputBuffer = Buffer.from(audioSamples.buffer);
-    // fs.writeFileSync(OutputFileName, outputBuffer);
-    // console.log("Embed Stego Audio:", OutputFileName);
-    return audioSamples.buffer;
+    // Buat buffer hasil stego audio dalam bentuk ArrayBuffer
+    const outputBuffer = new ArrayBuffer(audioSamples.length * Int16Array.BYTES_PER_ELEMENT);
+    const outputSamples = new Int16Array(outputBuffer);
+    outputSamples.set(audioSamples);
+
+    return outputBuffer; // Kembalikan sebagai ArrayBuffer
 }
+
 
 function extract(AudioFileName, key) {
     const audioBuffer = fs.readFileSync(AudioFileName);
