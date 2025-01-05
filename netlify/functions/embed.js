@@ -1,5 +1,5 @@
-const { encryptECB } = require('./ECB');
-const { embed } = require('./LCG');
+const { encryptECB } = require('../../ECB');
+const { embed } = require('../../LCG');
 
 exports.handler = async (event, context) => {
   const { plainText, audio, key } = JSON.parse(event.body);
