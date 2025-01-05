@@ -1,25 +1,34 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { encryptECB, decryptECB } = require('../../ECB');
+const { encryptECB } = require('../../ECB');
 const { embed } = require('../../LCG');
 const { testPSNRandMSE } = require('../../uji'); // Import fungsi uji.js
 
 exports.handler = async (event) => {
   try {
-    // Parsing data dari event body
-    const { key, plainText, audioFilePath } = JSON.parse(event.body);
+    // Log untuk melihat isi request body
+    console.log('Received event body:', event.body);
 
-    if (!key || !plainText || !audioFilePath) {
-      throw new Error('Key, plainText, atau audioFilePath tidak boleh kosong.');
+    if (!event.body) {
+      return { statusCode: 400, body: 'Request body is empty' };
     }
 
-    // Path output file di /tmp
-    const plainTextPath = `/tmp/plain_text_${Date.now()}.txt`;
+    // Parsing data dari event body
+    const { key, plainText, audio } = JSON.parse(event.body);
+
+    if (!key || !plainText || !audio) {
+      return { statusCode: 400, body: 'Missing required fields: key, plainText, or audio' };
+    }
+
+    // Path sementara untuk output file di /tmp
     const encryptedPath = `/tmp/encrypted_${Date.now()}.txt`;
     const stegoPath = `/tmp/stego_audio_${Date.now()}.wav`;
+    const plainTextPath = `/tmp/plain_text_${Date.now()}.txt`;
+    const audioPath = `/tmp/audio_${Date.now()}.wav`;
 
-    // Simpan plain text ke file sementara
-    await fs.writeFile(plainTextPath, plainText, 'utf8');
+    // Simpan plain text dan audio ke file sementara
+    await fs.writeFile(plainTextPath, Buffer.from(plainText, 'base64').toString('utf8'), 'utf8');
+    await fs.writeFile(audioPath, Buffer.from(audio, 'base64'));
 
     // Enkripsi pesan
     await encryptECB(plainTextPath, encryptedPath, key);
@@ -27,18 +36,11 @@ exports.handler = async (event) => {
     // Baca pesan terenkripsi
     const message = await fs.readFile(encryptedPath, 'utf8');
 
-    // Embedding ke audio
-    embed(audioFilePath, message, key, stegoPath);
-
-    // Cek apakah file stego audio berhasil dibuat
-    try {
-      await fs.access(stegoPath);
-    } catch (err) {
-      throw new Error('Gagal membuat file stego audio.');
-    }
+    // Embedding pesan ke dalam audio
+    embed(audioPath, message, key, stegoPath);
 
     // Uji MSE dan PSNR
-    const { mse, psnr } = testPSNRandMSE(audioFilePath, stegoPath);
+    const { mse, psnr } = testPSNRandMSE(audioPath, stegoPath);
 
     // Baca file stego audio sebagai buffer
     const fileBuffer = await fs.readFile(stegoPath);
@@ -47,15 +49,16 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'audio/wav',
+        'Content-Type': 'application/json',
       },
-      body: fileBuffer.toString('base64'),
-      isBase64Encoded: true,
-      mse,
-      psnr,
+      body: JSON.stringify({
+        stegoAudio: fileBuffer.toString('base64'),
+        mse,
+        psnr,
+      }),
     };
   } catch (error) {
-    console.error('Error embedding audio:', error.message || error);
-    return { statusCode: 500, body: `Error embedding audio: ${error.message || 'Unknown error'}` };
+    console.error('Error embedding audio:', error);
+    return { statusCode: 500, body: 'Error embedding audio' };
   }
 };
