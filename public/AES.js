@@ -332,4 +332,4 @@ function decrypt(plaintext, key) {
 // const encrypted = encrypt (plaintext, key);
 // decrypt(encrypted, key);
 
-module.exports = { encrypt, decrypt };
+ export default { encrypt, decrypt };
