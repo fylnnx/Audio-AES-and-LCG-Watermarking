@@ -1,6 +1,6 @@
-import { calculateMSE, calculatePSNR, readAudioFile, testPSNRandMSE } from './uji.js';
-import { encryptECB, decryptECB } from './ECB.js';
-import { embed, extract } from './LCG.js';
+import uji from './uji.js';  =
+import ecb from './ECB.js';   
+import lcg from './LCG.js';    
 
 document.addEventListener('DOMContentLoaded', () => {
   const navButtons = document.querySelectorAll('[data-page]');
@@ -35,17 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Baca file teks dan enkripsi
         const reader = new FileReader();
         reader.onload = async () => {
-          const encryptedText = await encryptECB(reader.result, key);  // Enkripsi isi teks
+          const encryptedText = await ecb.encryptECB(reader.result, key);  // Enkripsi isi teks
 
           // Simulasi proses embedding pesan terenkripsi ke dalam audio
-          const stegoAudio = embed(audioFile.name, encryptedText, key);
+          const stegoAudio = lcg.embed(audioFile.name, encryptedText, key);
 
           // Menghitung MSE dan PSNR
-          const originalSamples = await readAudioFile(audioFile);
-          const stegoSamples = await readAudioFile(stegoAudio);
+          const originalSamples = await uji.readAudioFile(audioFile);
+          const stegoSamples = await uji.readAudioFile(stegoAudio);
           
-          const mse = calculateMSE(originalSamples, stegoSamples);
-          const psnr = calculatePSNR(mse);
+          const mse = uji.calculateMSE(originalSamples, stegoSamples);
+          const psnr = uji.calculatePSNR(mse);
 
           // Tampilkan hasilnya
           document.getElementById('mseValue').textContent = `MSE: ${mse}`;
@@ -84,10 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         // Simulasi ekstraksi pesan dari stego audio
-        const extractedMessage = extract(stegoAudioFile.name, key);
+        const extractedMessage = await lcg.extract(stegoAudioFile.name, key);
 
         // Simulasi dekripsi pesan yang diekstrak
-        const decryptedMessage = await decryptECB(extractedMessage, key);
+        const decryptedMessage = await ecb.decryptECB(extractedMessage, key);
 
         // Tampilkan hasil ekstraksi dan dekripsi
         document.getElementById('encryptedText').value = extractedMessage;
