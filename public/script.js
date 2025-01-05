@@ -43,16 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
           // Simulasi proses embedding pesan terenkripsi ke dalam audio
           const stegoAudio = lcg.embed(audioArrayBuffer, encryptedText, key);
 
-          // Menghitung MSE dan PSNR
-          const originalSamples = await uji.readAudioFile(audioFile);
-          const stegoSamples = await uji.readAudioFile(stegoAudio);
+          // // Menghitung MSE dan PSNR
+          // const originalSamples = await uji.readAudioFile(audioFile);
+          // const stegoSamples = await uji.readAudioFile(stegoAudio);
           
-          const mse = uji.calculateMSE(originalSamples, stegoSamples);
-          const psnr = uji.calculatePSNR(mse);
+          // const mse = uji.calculateMSE(originalSamples, stegoSamples);
+          // const psnr = uji.calculatePSNR(mse);
 
-          // Tampilkan hasilnya
-          document.getElementById('mseValue').textContent = `MSE: ${mse}`;
-          document.getElementById('psnrValue').textContent = `PSNR: ${psnr}`;
+          // // Tampilkan hasilnya
+          // document.getElementById('mseValue').textContent = `MSE: ${mse}`;
+          // document.getElementById('psnrValue').textContent = `PSNR: ${psnr}`;
 
           // Buat file audio output dan unduh
           const outputBlob = new Blob([stegoAudio], { type: 'audio/wav' });
