@@ -1,6 +1,3 @@
-const { log } = require('console');
-const fs = require('fs');
-
 function getSeedFromKey(key) {
     let seed = key.charCodeAt(0);
     for (let i = 1; i < key.length; i++) {
