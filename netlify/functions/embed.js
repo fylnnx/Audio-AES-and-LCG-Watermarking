@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { encryptECB, decryptECB } = require('../../ECB');
-const { embed, extract } = require('../../LCG');
+const { embed } = require('../../LCG');
 const { testPSNRandMSE } = require('../../uji'); // Import fungsi uji.js
 
 exports.handler = async (event) => {
@@ -9,12 +9,16 @@ exports.handler = async (event) => {
     // Parsing data dari event body
     const { key, plainText, audioFilePath } = JSON.parse(event.body);
 
+    if (!key || !plainText || !audioFilePath) {
+      throw new Error('Key, plainText, atau audioFilePath tidak boleh kosong.');
+    }
+
     // Path output file di /tmp
+    const plainTextPath = `/tmp/plain_text_${Date.now()}.txt`;
     const encryptedPath = `/tmp/encrypted_${Date.now()}.txt`;
     const stegoPath = `/tmp/stego_audio_${Date.now()}.wav`;
 
     // Simpan plain text ke file sementara
-    const plainTextPath = `/tmp/plain_text_${Date.now()}.txt`;
     await fs.writeFile(plainTextPath, plainText, 'utf8');
 
     // Enkripsi pesan
@@ -25,6 +29,13 @@ exports.handler = async (event) => {
 
     // Embedding ke audio
     embed(audioFilePath, message, key, stegoPath);
+
+    // Cek apakah file stego audio berhasil dibuat
+    try {
+      await fs.access(stegoPath);
+    } catch (err) {
+      throw new Error('Gagal membuat file stego audio.');
+    }
 
     // Uji MSE dan PSNR
     const { mse, psnr } = testPSNRandMSE(audioFilePath, stegoPath);
@@ -44,7 +55,7 @@ exports.handler = async (event) => {
       psnr,
     };
   } catch (error) {
-    console.error('Error embedding audio:', error);
-    return { statusCode: 500, body: 'Error embedding audio' };
+    console.error('Error embedding audio:', error.message || error);
+    return { statusCode: 500, body: `Error embedding audio: ${error.message || 'Unknown error'}` };
   }
 };
