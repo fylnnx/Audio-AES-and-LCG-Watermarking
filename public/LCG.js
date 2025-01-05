@@ -108,7 +108,7 @@ function extract(AudioFileName, key) {
 // embed('sample.wav', 'Pesan ini bisa lebih panjang sekarang!', '12345678901234567890123456789012', 'output3.wav');
 // extract('output3.wav', '12345678901234567890123456789012');
 
-export default = {
+export default {
     embed,
     extract,
 };
