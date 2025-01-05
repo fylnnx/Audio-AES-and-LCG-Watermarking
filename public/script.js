@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
           // Buat file audio output dan unduh
-          const outputBlob = new Blob([stegoAudioBuffer], { type: 'audio/wav' });
+          const outputBlob = new Blob([stegoAudio], { type: 'audio/wav' });
           const url = URL.createObjectURL(outputBlob);
           const link = document.createElement('a');
           link.href = url;
